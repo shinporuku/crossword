@@ -1,0 +1,44 @@
+/* 通常マス */
+.cell {
+    width: 42px;
+    height: 42px;
+    border: 1px solid #888;
+    position: relative;
+    background: #ffffff;
+}
+
+/* 黒マス */
+.black {
+    background: #333;
+}
+
+/* 番号 */
+.number {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    font-size: 11px;
+    color: #000;
+}
+
+/* 入力欄 */
+.letter {
+    width: 100%;
+    height: 100%;
+    font-size: 22px;
+    text-align: center;
+    border: none;
+    background: transparent;
+}
+
+/* 単語ハイライト（横 or 縦） */
+.active {
+    background: #ffe066 !important;
+    border: 2px solid #ff9f1c !important;
+}
+
+/* 現在入力中のマス */
+.current {
+    background: #ffd23f !important;
+    border: 3px solid #ff595e !important;
+}
