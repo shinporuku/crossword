@@ -3,85 +3,24 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Wedding Crossword</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>Crossword</title>
     <link rel="stylesheet" href="style.css">
-    <script src="crossword.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+    <script src="crossword.js" defer></script>
 </head>
 
 <body>
-
-    <h1>クロスワード</h1>
+    <!-- <h1>クロスワード</h1> -->
+    マスをタップして答えを入力してください。
     <div id="crossword"></div>
-
-    <h2>ヒント</h2>
-    <div id="clues"></div>
-
+    <div id="current-clue"></div>
+    <div id="keyboard"></div>
     <button id="check">答え合わせ</button>
     <div id="keyword" class="hidden"></div>
-
-    <script>
-        // --- クロスワード定義 ---
-        const puzzleData = {
-            size: [7, 7],
-            grid: [
-                "CAT.DOG",
-                "APPLE..",
-                ".PEN.CD",
-                "MOON.SU",
-                "NOTE.DO",
-                "EL.GAME",
-                "......."
-            ],
-            clues: {
-                across: {
-                    1: "よく飼われる動物",
-                    2: "人懐っこい動物",
-                    3: "赤い果物",
-                    4: "書くときに使う道具",
-                    5: "音楽を収録する円盤",
-                    6: "夜空に浮かぶ天体",
-                    7: "日本語の「す」",
-                    8: "メモのこと",
-                    9: "音階の最初の音",
-                    10: "アルファベットの「L」の読み",
-                    11: "遊びの総称"
-                },
-                down: {
-                    1: "帽子",
-                    2: "類人猿",
-                    3: "仮の略語（テンプレートの意）",
-                    4: "装飾のこと",
-                    5: "ギリシャ文字の最後",
-                    6: "「good」の砕けた表現（仮）",
-                    7: "ネットミームの犬",
-                    8: "炭酸飲料",
-                    9: "日本の山菜",
-                    10: "分配する、の意"
-                }
-            },
-            keywordCells: [
-                [0, 0], [0, 1], [0, 2] // CAT → 仮キーワード
-            ]
-        };
-
-
-        // --- 描画 ---
-        const cw = new Crossword(puzzleData);
-        cw.render("crossword");
-
-        // --- 答え合わせ ---
-        document.getElementById("check").addEventListener("click", () => {
-            if (cw.checkAnswers()) {
-                const keyword = cw.getKeyword();
-                document.getElementById("keyword").innerText =
-                    "キーワードは「" + keyword + "」です";
-                document.getElementById("keyword").classList.remove("hidden");
-            } else {
-                alert("まだ間違いがあります");
-            }
-        });
-    </script>
-
+    <h2>ヒント</h2>
+    答えは全部英字です。
+    <div id="clues"></div>
 </body>
 
 </html>

@@ -1,0 +1,4 @@
+node_modules/
+puzzle_plain.json
+encrypt.js
+package-lock.json
