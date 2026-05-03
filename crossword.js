@@ -759,7 +759,7 @@ window.addEventListener("DOMContentLoaded", async () => {
             localStorage.setItem("crossword_cleared", "true");
 
             // ★ アートギャラリーへ遷移
-            window.location.href = "/artgallery";
+            window.location.href = "artgallery/";
             return;
         }
 

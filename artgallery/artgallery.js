@@ -2,7 +2,7 @@ let galleryData = null;
 let lang = "jp";
 
 window.addEventListener("DOMContentLoaded", async () => {
-    const uiRes = await fetch("/artgallery/ui_text.json");
+    const uiRes = await fetch("ui_text.json");
     galleryData = await uiRes.json();
 
     const cleared = localStorage.getItem("crossword_cleared") === "true";
@@ -11,7 +11,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     if (!cleared) {
         updateGalleryUI(lang, galleryData);
         alert(lang === "jp" ? "クロスワードをクリアすると入場できます。" : "크로스워드를 클리어하면 입장할 수 있습니다.");
-        window.location.href = "/";
+        window.location.href = "../";
         return;
     }
 
@@ -94,5 +94,5 @@ document.getElementById("lang-kr").addEventListener("click", async () => {
 });
 
 document.getElementById("back-to-crossword").addEventListener("click", () => {
-    window.location.href = "/";
+    window.location.href = "../";
 });
