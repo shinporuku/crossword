@@ -1,0 +1,14 @@
+{
+    "gallery_ui_jp": {
+        "title": "Special Exhibition",
+        "subtitle": "クロスワードをクリアしたあなたへ贈る、小さな美術館。",
+        "gate": "この展覧会には、クロスワードをクリアした人だけが入場できます。",
+        "back-to-crossword": "クロスワードに戻る"
+    },
+    "gallery_ui_kr": {
+        "title": "Special Exhibition",
+        "subtitle": "크로스워드를 클리어한 당신에게 보내는 작은 미술관.",
+        "gate": "이 전시회는 크로스워드를 클리어한 사람만 입장할 수 있습니다.",
+        "back-to-crossword": "크로스워드로 돌아가기"
+    }
+}

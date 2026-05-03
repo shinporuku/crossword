@@ -215,3 +215,28 @@ td.current-down {
     transform: translateY(1px);
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
 }
+
+
+#lang-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    /* ← jp/kr とメッセージの間隔 */
+    margin: 10px 0;
+    flex-wrap: wrap;
+    /* ← スマホで折り返し可能 */
+}
+
+#lang-switcher span {
+    color: #007bff;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+#lang-switcher .active {
+    color: #000;
+    text-decoration: none;
+    cursor: default;
+    font-weight: bold;
+}

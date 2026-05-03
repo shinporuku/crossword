@@ -12,14 +12,21 @@
 
 <body>
     <!-- <h1>クロスワード</h1> -->
-    マスをタップして答えを入力してください。
+    <div id="lang-row">
+        <div id="lang-switcher">
+            <span id="lang-jp">jp</span> /
+            <span id="lang-kr">kr</span>
+        </div>
+        <div id="tap-msg">マスをタップして答えを入力してください。</div>
+    </div>
+
+
     <div id="crossword"></div>
     <div id="current-clue"></div>
     <div id="keyboard"></div>
     <button id="check">答え合わせ</button>
-    <div id="keyword" class="hidden"></div>
-    <h2>ヒント</h2>
-    答えは全部英字です。
+    <h2 id="hint-title">ヒント</h2>
+    <div id="hint-note">答えは全部英字です。</div>
     <div id="clues"></div>
 </body>
 

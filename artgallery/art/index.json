@@ -1,0 +1,44 @@
+[
+    {
+        "file": "cookie_original.png",
+        "title_jp": "クッキーちゃん オリジナル",
+        "title_kr": "쿠키짱 오리지널",
+        "desc_jp": "新郎一家の愛犬（トイプードル）\n天国から見守っている",
+        "desc_kr": "신랑 가족의 반려견(토이푸들)\n지금은 하늘에서 지켜보고 있어요"
+    },
+    {
+        "file": "cookie.png",
+        "title_jp": "クッキーちゃん イラスト",
+        "title_kr": "쿠키짱 일러스트",
+        "desc_jp": "新郎作",
+        "desc_kr": "신랑이 직접 그림"
+    },
+    {
+        "file": "okome_original.jpg",
+        "title_jp": "おこめちゃん オリジナル",
+        "title_kr": "오코메짱 오리지널",
+        "desc_jp": "新婦一家の愛犬（柴犬）",
+        "desc_kr": "신부 가족의 반려견(시바견)"
+    },
+    {
+        "file": "okome.jpg",
+        "title_jp": "おこめちゃん イラスト",
+        "title_kr": "오코메짱 일러스트",
+        "desc_jp": "新婦作",
+        "desc_kr": "신부가 직접 그림"
+    },
+    {
+        "file": "cookie_wallpaper.jpg",
+        "title_jp": "クッキーちゃん スマホ壁紙",
+        "title_kr": "쿠키짱 스마트폰 배경화면",
+        "desc_jp": "",
+        "desc_kr": ""
+    },
+    {
+        "file": "okome_wallpaper.jpg",
+        "title_jp": "おこめちゃん スマホ壁紙",
+        "title_kr": "오코메짱 스마트폰 배경화면",
+        "desc_jp": "",
+        "desc_kr": ""
+    }
+]

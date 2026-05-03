@@ -62,8 +62,9 @@ function renderKeyboard(onKeyPress) {
    Crossword クラス
 ============================================================ */
 class Crossword {
-    constructor(data) {
+    constructor(data, lang = "jp") {
         this.data = data;
+        this.currentLang = lang;
         this.cells = [];
         this.numbers = [];
         this.direction = "across";
@@ -97,6 +98,7 @@ class Crossword {
                     const inner = document.createElement("div");
                     inner.className = "cell-inner black-inner"; // ← 追加
                     cell.appendChild(inner);
+                    this.cells[r][c] = null;
                 } else {
                     const inner = document.createElement("div");
                     inner.className = "cell-inner";
@@ -141,19 +143,23 @@ class Crossword {
 
         this.renderClues();
         this.addCellEvents();
+
     }
 
     renderClues() {
         const cluesDiv = document.getElementById("clues");
         cluesDiv.innerHTML = "";
 
+        const langKey = this.currentLang === "jp" ? "clues_jp" : "clues_kr";
+        const clueData = this.data[langKey];
+
         const acrossTitle = document.createElement("h3");
-        acrossTitle.innerText = "横（Across）";
+        acrossTitle.innerText = "Across ( → )";
         cluesDiv.appendChild(acrossTitle);
 
         const acrossList = document.createElement("ul");
 
-        for (const item of this.data.clues.across) {
+        for (const item of clueData.across) {
             const [r, c] = item.pos;
             const num = this.numbers[r][c];
             const li = document.createElement("li");
@@ -164,12 +170,12 @@ class Crossword {
         cluesDiv.appendChild(acrossList);
 
         const downTitle = document.createElement("h3");
-        downTitle.innerText = "縦（Down）";
+        downTitle.innerText = "Down ( ↓ )";
         cluesDiv.appendChild(downTitle);
 
         const downList = document.createElement("ul");
 
-        for (const item of this.data.clues.down) {
+        for (const item of clueData.down) {
             const [r, c] = item.pos;
             const num = this.numbers[r][c];
             const li = document.createElement("li");
@@ -194,7 +200,6 @@ class Crossword {
     }
 
     onCellClick(r, c) {
-
         const isAcross = this.isAcrossCell(r, c);
         const isDown = this.isDownCell(r, c);
 
@@ -213,12 +218,14 @@ class Crossword {
                 this.direction = (this.direction === "across") ? "down" : "across";
             }
 
-            document.querySelectorAll(".active").forEach(el => el.classList.remove("active"));
             this.cells[r][c].closest("td").classList.add("current");
             this.highlightWord(r, c);
 
             // ★ ヒント更新を追加
             this.updateCurrentClue(r, c);
+
+            // ★ 状態保存
+            this.saveState();
 
             return;
         }
@@ -249,6 +256,9 @@ class Crossword {
 
             // ★★★ これを追加（最初のクリックでもヒントが出る）
             this.updateCurrentClue(r, c);
+
+            // ★ 状態保存
+            this.saveState();
 
             return;
         }
@@ -282,6 +292,9 @@ class Crossword {
 
         // ヒント更新
         this.updateCurrentClue(r, c);
+
+        // ★ 状態保存
+        this.saveState();
     }
 
 
@@ -392,7 +405,10 @@ class Crossword {
         }
 
         const dir = this.direction;
-        const clueList = dir === "across" ? this.data.clues.across : this.data.clues.down;
+        const langKey = this.currentLang === "jp" ? "clues_jp" : "clues_kr";
+        const clueList = dir === "across"
+            ? this.data[langKey].across
+            : this.data[langKey].down;
 
         for (const item of clueList) {
             const [rr, cc] = item.pos;
@@ -404,7 +420,7 @@ class Crossword {
                 const num = this.numbers[rr][cc];  // ← ヒント番号を取得
 
                 // 表示内容（番号＋ヒント文）
-                clueBox.innerText = `${dir === "across" ? "横" : "縦"} ${num}. ${item.clue}`;
+                clueBox.innerText = `${dir === "across" ? "→" : "↓"} ${num}. ${item.clue}`;
 
                 // 背景色を direction に応じて付与
                 clueBox.classList.add(dir === "across" ? "clue-across" : "clue-down");
@@ -417,6 +433,21 @@ class Crossword {
         clueBox.innerText = "";
     }
 
+    getCurrentClueNumber(r, c, dir) {
+        const langKey = this.currentLang === "jp" ? "clues_jp" : "clues_kr";
+        const clueList = dir === "across"
+            ? this.data[langKey].across
+            : this.data[langKey].down;
+
+        for (let i = 0; i < clueList.length; i++) {
+            const [rr, cc] = clueList[i].pos;
+            const cells = this.getWordCells(rr, cc, dir);
+            if (cells.some(pos => pos.r === r && pos.c === c)) {
+                return i; // ← index を返す
+            }
+        }
+        return -1;
+    }
 
     moveNext() {
         const rows = this.data.size[0];
@@ -473,22 +504,39 @@ class Crossword {
         /* ============================================================
            ③ キーワード内が埋まった → 次のキーワードを探す
         ============================================================ */
+        const currentIndex = this.getCurrentClueNumber(r, c, this.direction);
 
-        const findNextKeyword = (preferDir) => {
-            const clueList = preferDir === "across"
-                ? this.data.clues.across
-                : this.data.clues.down;
+        const findNextKeywordSequential = (dir) => {
+            const langKey = this.currentLang === "jp" ? "clues_jp" : "clues_kr";
+            const clueList = dir === "across"
+                ? this.data[langKey].across
+                : this.data[langKey].down;
 
-            for (const item of clueList) {
-                const [rr, cc] = item.pos;
-                const cells = getWordCells(rr, cc, preferDir);
+            const currentIndex = this.getCurrentClueNumber(r, c, dir);
+            const total = clueList.length;
 
+            // ★ 1. 現在の次から最後まで探す
+            for (let i = currentIndex + 1; i < total; i++) {
+                const [rr, cc] = clueList[i].pos;
+                const cells = this.getWordCells(rr, cc, dir);
                 for (const pos of cells) {
                     if (this.cells[pos.r][pos.c].innerText === "") {
-                        return { pos, dir: preferDir };
+                        return { pos, dir };
                     }
                 }
             }
+
+            // ★ 2. 見つからなければ「先頭から現在の直前まで」探す（循環）
+            for (let i = 0; i <= currentIndex; i++) {
+                const [rr, cc] = clueList[i].pos;
+                const cells = this.getWordCells(rr, cc, dir);
+                for (const pos of cells) {
+                    if (this.cells[pos.r][pos.c].innerText === "") {
+                        return { pos, dir };
+                    }
+                }
+            }
+
             return null;
         };
 
@@ -496,10 +544,10 @@ class Crossword {
 
         if (this.direction === "across") {
             // 横 → 次の横 → 次の縦
-            next = findNextKeyword("across") || findNextKeyword("down");
+            next = findNextKeywordSequential("across") || findNextKeywordSequential("down");
         } else {
             // 縦 → 次の縦 → 次の横
-            next = findNextKeyword("down") || findNextKeyword("across");
+            next = findNextKeywordSequential("down") || findNextKeywordSequential("across");
         }
 
 
@@ -541,6 +589,8 @@ class Crossword {
                 cell.innerText = "";
                 cell.closest("td").classList.add("current");
                 this.highlightWord(r, c);
+                // ★ 状態保存
+                this.saveState();
                 return;
             }
 
@@ -551,6 +601,8 @@ class Crossword {
             if (idx === 0) {
                 cell.closest("td").classList.add("current");
                 this.highlightWord(r, c);
+                // ★ 状態保存
+                this.saveState();
                 return;
             }
 
@@ -563,6 +615,8 @@ class Crossword {
             prevCell.closest("td").classList.add("current");
             this.highlightWord(prev.r, prev.c);
 
+            // ★ 状態保存
+            this.saveState();
             return;
         }
 
@@ -570,6 +624,9 @@ class Crossword {
         this.cells[r][c].innerText = ch;
         this.moveNext();
         this.updateCurrentClue(this.currentPos.r, this.currentPos.c);
+
+        // ★ 状態保存
+        this.saveState();
     }
 
     checkAnswers() {
@@ -590,6 +647,69 @@ class Crossword {
             .map(([r, c]) => this.cells[r][c].innerText.toUpperCase())
             .join("");
     }
+
+    saveState() {
+        const rows = this.data.size[0];
+        const cols = this.data.size[1];
+
+        const letters = [];
+        for (let r = 0; r < rows; r++) {
+            letters[r] = [];
+            for (let c = 0; c < cols; c++) {
+                const cell = this.cells[r][c];
+                if (!cell) {
+                    letters[r][c] = null;   // 黒マス
+                } else {
+                    letters[r][c] = cell.innerText || "";
+                }
+            }
+        }
+
+        const state = {
+            letters,
+            currentPos: this.currentPos,
+            direction: this.direction
+        };
+        localStorage.setItem("crossword_state", JSON.stringify(state));
+    }
+
+
+    restoreState() {
+        const raw = localStorage.getItem("crossword_state");
+        if (!raw) return;
+
+        const state = JSON.parse(raw);
+
+        const rows = this.data.size[0];
+        const cols = this.data.size[1];
+
+        if (!state.letters) return;
+
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                const cell = this.cells[r][c];
+                if (!cell) continue; // 黒マス
+
+                const ch = state.letters[r]?.[c];
+                cell.innerText = ch ?? "";
+            }
+        }
+
+        if (state.currentPos) {
+            this.currentPos = state.currentPos;
+            const { r, c } = this.currentPos;
+            this.cells[r][c].closest("td").classList.add("current");
+        }
+
+        if (state.direction) {
+            this.direction = state.direction;
+        }
+
+        if (this.currentPos) {
+            this.highlightWord(this.currentPos.r, this.currentPos.c);
+            this.updateCurrentClue(this.currentPos.r, this.currentPos.c);
+        }
+    }
 }
 
 
@@ -601,10 +721,14 @@ window.addEventListener("DOMContentLoaded", async () => {
     const puzzleData = await loadPuzzle();
     if (!puzzleData) return;
 
-    const cw = new Crossword(puzzleData);
-    cw.render("crossword");
+    let savedLang = localStorage.getItem("crossword_lang");
+    const lang = savedLang ? savedLang : "jp";
 
-    renderKeyboard(ch => cw.setLetter(ch));
+    const cw = new Crossword(puzzleData, lang);
+    cw.render("crossword");
+    renderKeyboard(ch => cw.setLetter.call(cw, ch));
+
+    cw.restoreState();
 
     document.getElementById("check").addEventListener("click", () => {
 
@@ -621,29 +745,40 @@ window.addEventListener("DOMContentLoaded", async () => {
         }
 
         if (hasEmpty) {
-            alert("未入力のマスがあります");
+            if (cw.currentLang === "jp") {
+                alert("未入力のマスがあります");
+            } else {
+                alert("입력되지 않은 칸이 있습니다");
+            }
             return;
         }
 
         // ② 全部正解か？
         if (cw.checkAnswers()) {
-            const keyword = cw.getKeyword();
-            document.getElementById("keyword").innerText =
-                "キーワードは「" + keyword + "」です";
-            document.getElementById("keyword").classList.remove("hidden");
+            // ★ クリア実績を保存（ローカルストレージ）
+            localStorage.setItem("crossword_cleared", "true");
+
+            // ★ アートギャラリーへ遷移
+            window.location.href = "/artgallery";
             return;
         }
 
         // ③ 不正解がある
-        alert("間違いがあります");
+        if (cw.currentLang === "jp") {
+            alert("間違いがあります");
+        } else {
+            alert("틀린 부분이 있습니다");
+        }
     });
 
 
     document.addEventListener("click", (e) => {
-        const isCell = e.target.closest("td");
-        const isKeyboard = e.target.closest("#keyboard");
+        const isCell = e.target.closest("td.cell");
+        const isKeyboardKey = e.target.closest("#keyboard .key");
+        const isLangSwitcher = e.target.closest("#lang-switcher");
 
-        if (!isCell && !isKeyboard) {
+        if (isLangSwitcher) return;
+        if (!isCell && !isKeyboardKey) {
 
             // ★ 方向別 current を全部消す
             document.querySelectorAll(".current-across, .current-down")
@@ -664,6 +799,55 @@ window.addEventListener("DOMContentLoaded", async () => {
             }
         }
     });
+
+    // ============================
+    // 言語切り替え（jp / kr）
+    // ============================
+    const jp = document.getElementById("lang-jp");
+    const kr = document.getElementById("lang-kr");
+    if (cw.currentLang === "kr") {
+        kr.classList.add("active");
+        jp.classList.remove("active");
+    } else {
+        jp.classList.add("active");
+        kr.classList.remove("active");
+    }
+    updateUI(cw.currentLang, puzzleData);
+    jp.addEventListener("click", () => {
+        if (cw.currentLang !== "jp") {
+            cw.currentLang = "jp";
+            localStorage.setItem("crossword_lang", "jp");
+
+            jp.classList.add("active");
+            kr.classList.remove("active");
+
+            updateUI("jp", puzzleData);
+
+            document.getElementById("crossword").innerHTML = "";
+            cw.render("crossword");
+            renderKeyboard(ch => cw.setLetter.call(cw, ch));
+            cw.restoreState();
+        }
+        console.log("currentLang:", cw.currentLang);
+    });
+
+    kr.addEventListener("click", () => {
+        if (cw.currentLang !== "kr") {
+            cw.currentLang = "kr";
+            localStorage.setItem("crossword_lang", "kr");
+
+            kr.classList.add("active");
+            jp.classList.remove("active");
+
+            updateUI("kr", puzzleData);
+
+            document.getElementById("crossword").innerHTML = "";
+            cw.render("crossword");
+            renderKeyboard(ch => cw.setLetter.call(cw, ch));
+            cw.restoreState();
+        }
+        console.log("currentLang:", cw.currentLang);
+    });
 });
 
 function adjustCellSize() {
@@ -671,6 +855,15 @@ function adjustCellSize() {
         const w = cell.offsetWidth;
         cell.style.height = w + "px";
     });
+}
+
+function updateUI(lang, data) {
+    const ui = lang === "jp" ? data.ui_jp : data.ui_kr;
+
+    document.getElementById("tap-msg").innerText = ui.tap;
+    document.getElementById("check").innerText = ui.check;
+    document.getElementById("hint-title").innerText = ui.hint_title;
+    document.getElementById("hint-note").innerText = ui.hint_note;
 }
 
 window.addEventListener("load", adjustCellSize);
