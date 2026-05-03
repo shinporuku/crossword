@@ -1,3 +1,8 @@
+html {
+    font-size: 20px;
+    /* ← 全体の基準を大きくする */
+}
+
 /* ============================
    キーボード（英字キー幅を完全統一）
 ============================ */
@@ -20,7 +25,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 18px;
+    font-size: 22px;
     font-weight: bold;
     user-select: none;
 }
@@ -101,7 +106,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 22px;
+    font-size: 28px;
     user-select: none;
     -webkit-user-select: none;
     pointer-events: auto;
@@ -110,7 +115,7 @@ body {
 
 
 .number {
-    font-size: 11px;
+    font-size: 14px;
     top: 2px;
     left: 2px;
 }
@@ -151,20 +156,17 @@ td.current-down {
     padding: 6px 10px;
     border-radius: 6px;
 
-    font-size: 16px;
+    font-size: 20px;
     line-height: 1.3;
 
-    /* ★ 常に3行分の高さを確保 */
-    height: calc(1.3em * 3);
-
-    /* ★ 短いヒントは縦方向に中央寄せ */
-    display: flex;
-    align-items: center;
-
-    /* ★ 長文はスクロールで読める */
+    max-height: calc(1.3em * 3);
+    /* ← 高さを “最大” に変更 */
     overflow-y: auto;
+    /* ← 内容が多いときだけスクロール */
 
-    /* 背景色は JS のクラスで付くので指定しない */
+    display: block;
+    /* ← flex をやめる（スクロール阻害の原因） */
+
     transition: background-color 0.2s ease;
     box-sizing: border-box;
 }
@@ -188,7 +190,9 @@ td.current-down {
     /* 上下余白＋中央寄せ */
     padding: 14px 28px;
     /* 大きめの押し心地 */
-    font-size: 20px;
+    font-size: 24px;
+    /* 押しやすく */
+    padding: 18px 32px;
     /* 見やすい大きさ */
     font-weight: bold;
     color: #fff;
@@ -216,18 +220,6 @@ td.current-down {
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
 }
 
-
-#lang-row {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 12px;
-    /* ← jp/kr とメッセージの間隔 */
-    margin: 10px 0;
-    flex-wrap: wrap;
-    /* ← スマホで折り返し可能 */
-}
-
 #lang-switcher span {
     color: #007bff;
     text-decoration: underline;
@@ -239,4 +231,10 @@ td.current-down {
     text-decoration: none;
     cursor: default;
     font-weight: bold;
+}
+
+#lang-switcher,
+#tap-msg {
+    text-align: center;
+    width: 100%;
 }
